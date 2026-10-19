@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 import { SettingsProvider } from './app-core.jsx';
+import { registerAdminTabs } from './app-admin.jsx';
 import Shell from './app-shell.jsx';
 
 // Every file named page-*.jsx or admin-*.jsx is picked up automatically.
 // A page file only needs: export const route = '/path'; export default function Page() {...}
+// An admin file may also export: export const tab = { label: 'Name', order: 1 };
 const modules = import.meta.glob(['./page-*.jsx', './admin-*.jsx'], { eager: true });
-const routes = Object.values(modules)
-  .filter((m) => m.route && m.default)
-  .map((m) => ({ route: m.route, Page: m.default }));
+const pages = Object.values(modules).filter((m) => m.route && m.default);
+const routes = pages.map((m) => ({ route: m.route, Page: m.default }));
+
+registerAdminTabs(pages.filter((m) => m.tab).map((m) => ({ ...m.tab, route: m.route })));
 
 function match(pattern, path) {
   const a = pattern.split('/').filter(Boolean);
