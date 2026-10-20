@@ -54,8 +54,8 @@ export default function AdminSettings() {
   }, []);
 
   async function saveAll() {
-    await save('brand_name', JSON.stringify(brandName));
-    await save('bkash_number', JSON.stringify(bkash));
+    await save('brand_name', brandName);
+    await save('bkash_number', bkash);
     await save('contact', contact);
     await save('social_links', social);
     await save('loyalty', loyalty);
