@@ -59,11 +59,12 @@ function AuthForm() {
   async function signup(e) {
     e.preventDefault(); setError(''); setBusy(true);
     if (!/^01[3-9][0-9]{8}$/.test(phone)) { setError('Please enter a valid Bangladesh phone number.'); setBusy(false); return; }
-    const { data, error: err } = await supabase.auth.signUp({ email: email.trim(), password });
-    if (err) { setError(err.message); setBusy(false); return; }
-    if (data.user) {
-      await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, phone, email: email.trim() });
-    }
+    const { error: err } = await supabase.auth.signUp({
+  email: email.trim(),
+  password,
+  options: { data: { full_name: name, phone, contact_email: email.trim() } },
+});
+if (err) { setError(err.message); setBusy(false); return; }
     setBusy(false);
     setDone('Account created! Please check your email to confirm, then log in.');
   }
