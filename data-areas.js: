@@ -1,0 +1,23 @@
+// Bangladesh divisions, districts and upazilas. Edit this one file to extend the lists.
+export const DIVISIONS = ['Dhaka', 'Chittagong', 'Rajshahi', 'Khulna', 'Barisal', 'Sylhet', 'Rangpur', 'Mymensingh'];
+
+export const DISTRICTS = {
+  Dhaka: ['Dhaka', 'Gazipur', 'Narayanganj', 'Manikganj', 'Munshiganj', 'Narsingdi', 'Tangail', 'Kishoreganj', 'Faridpur', 'Gopalganj', 'Madaripur', 'Rajbari', 'Shariatpur'],
+  Chittagong: ['Chittagong', "Cox's Bazar", 'Comilla', 'Brahmanbaria', 'Noakhali', 'Feni', 'Lakshmipur', 'Chandpur', 'Khagrachari', 'Rangamati', 'Bandarban'],
+  Rajshahi: ['Rajshahi', 'Bogra', 'Pabna', 'Sirajganj', 'Natore', 'Naogaon', 'Chapai Nawabganj', 'Joypurhat'],
+  Khulna: ['Khulna', 'Jessore', 'Satkhira', 'Bagerhat', 'Narail', 'Magura', 'Jhenaidah', 'Kushtia', 'Chuadanga', 'Meherpur'],
+  Barisal: ['Barisal', 'Bhola', 'Patuakhali', 'Pirojpur', 'Jhalokati', 'Barguna'],
+  Sylhet: ['Sylhet', 'Moulvibazar', 'Habiganj', 'Sunamganj'],
+  Rangpur: ['Rangpur', 'Dinajpur', 'Kurigram', 'Gaibandha', 'Nilphamari', 'Lalmonirhat', 'Thakurgaon', 'Panchagarh'],
+  Mymensingh: ['Mymensingh', 'Netrokona', 'Jamalpur', 'Sherpur'],
+};
+
+export const UPAZILAS = {
+  Dhaka: ['Dhanmondi', 'Gulshan', 'Mirpur', 'Mohammadpur', 'Uttara', 'Motijheel', 'Tejgaon', 'Demra', 'Keraniganj', 'Savar', 'Dohar', 'Nawabganj'],
+  Gazipur: ['Gazipur Sadar', 'Kaliakair', 'Kapasia', 'Sreepur', 'Kaliganj'],
+  Narayanganj: ['Narayanganj Sadar', 'Araihazar', 'Bandar', 'Rupganj', 'Sonargaon'],
+  Chittagong: ['Kotwali', 'Pahartali', 'Panchlaish', 'Bayazid', 'Chandgaon', 'Double Mooring', 'Halishahar', 'Khulshi', 'Karnaphuli', 'Anwara', 'Boalkhali', 'Chandanaish', 'Fatikchhari', 'Hathazari', 'Lohagara', 'Mirsharai', 'Patiya', 'Rangunia', 'Raozan', 'Sandwip', 'Satkania', 'Sitakunda'],
+  "Cox's Bazar": ["Cox's Bazar Sadar", 'Chakaria', 'Kutubdia', 'Maheshkhali', 'Ramu', 'Teknaf', 'Ukhia', 'Pekua'],
+};
+
+export const getUpazilas = (district) => UPAZILAS[district] || ['Sadar', 'Other'];
