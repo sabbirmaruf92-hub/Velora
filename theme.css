@@ -1,0 +1,23 @@
+.bottom-nav a { position: relative; }
+.cart-badge {
+  position: absolute; top: 6px; left: calc(50% + 4px);
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px;
+  background: var(--black); color: var(--white);
+  font-size: 10px; font-weight: 700; line-height: 17px; text-align: center;
+}
+.footer { border-top: 1px solid var(--line); margin-top: 32px; padding: 24px 16px 8px; }
+.footer-in { max-width: 1100px; margin: 0 auto; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 24px; }
+.tile { background: var(--soft-pink); border-radius: 12px; padding: 12px; }
+.tile strong { display: block; font-size: 14px; }
+.tile span { font-size: 12px; color: var(--muted); }
+.footer-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.footer h3 { font-family: var(--serif); font-weight: 500; font-size: 15px; margin: 0 0 8px; }
+.footer a { display: block; font-size: 14px; padding: 3px 0; color: var(--muted); }
+.footer a:hover { color: var(--black); }
+.footer-copy { font-size: 12px; color: var(--muted); text-align: center; padding: 20px 0 8px; }
+.logo-img { height: 30px; width: auto; max-width: 160px; object-fit: contain; }
+@media (min-width: 700px) {
+  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .footer-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
