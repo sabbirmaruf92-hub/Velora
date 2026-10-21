@@ -1,27 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase, money, useSettings } from './app-core.jsx';
+import { DIVISIONS, DISTRICTS, getUpazilas } from './data-areas.js';
 
 export const route = '/checkout';
-
-const DIVISIONS = ['Dhaka', 'Chittagong', 'Rajshahi', 'Khulna', 'Barisal', 'Sylhet', 'Rangpur', 'Mymensingh'];
-const DISTRICTS = {
-  Dhaka: ['Dhaka', 'Gazipur', 'Narayanganj', 'Manikganj', 'Munshiganj', 'Narsingdi', 'Tangail', 'Kishoreganj', 'Faridpur', 'Gopalganj', 'Madaripur', 'Rajbari', 'Shariatpur'],
-  Chittagong: ['Chittagong', "Cox's Bazar", 'Comilla', 'Brahmanbaria', 'Noakhali', 'Feni', 'Lakshmipur', 'Chandpur', 'Khagrachari', 'Rangamati', 'Bandarban'],
-  Rajshahi: ['Rajshahi', 'Bogra', 'Pabna', 'Sirajganj', 'Natore', 'Naogaon', 'Chapai Nawabganj', 'Joypurhat'],
-  Khulna: ['Khulna', 'Jessore', 'Satkhira', 'Bagerhat', 'Narail', 'Magura', 'Jhenaidah', 'Kushtia', 'Chuadanga', 'Meherpur'],
-  Barisal: ['Barisal', 'Bhola', 'Patuakhali', 'Pirojpur', 'Jhalokati', 'Barguna'],
-  Sylhet: ['Sylhet', 'Moulvibazar', 'Habiganj', 'Sunamganj'],
-  Rangpur: ['Rangpur', 'Dinajpur', 'Kurigram', 'Gaibandha', 'Nilphamari', 'Lalmonirhat', 'Thakurgaon', 'Panchagarh'],
-  Mymensingh: ['Mymensingh', 'Netrokona', 'Jamalpur', 'Sherpur'],
-};
-const UPAZILAS = {
-  Dhaka: ['Dhanmondi', 'Gulshan', 'Mirpur', 'Mohammadpur', 'Uttara', 'Motijheel', 'Tejgaon', 'Demra', 'Keraniganj', 'Savar', 'Dohar', 'Nawabganj'],
-  Gazipur: ['Gazipur Sadar', 'Kaliakair', 'Kapasia', 'Sreepur', 'Kaliganj'],
-  Narayanganj: ['Narayanganj Sadar', 'Araihazar', 'Bandar', 'Rupganj', 'Sonargaon'],
-  Chittagong: ['Kotwali', 'Pahartali', 'Panchlaish', 'Bayazid', 'Chandgaon', 'Double Mooring', 'Halishahar', 'Khulshi', 'Karnaphuli', 'Anwara', 'Boalkhali', 'Chandanaish', 'Fatikchhari', 'Hathazari', 'Lohagara', 'Mirsharai', 'Patiya', 'Rangunia', 'Raozan', 'Sandwip', 'Satkania', 'Sitakunda'],
-  "Cox's Bazar": ["Cox's Bazar Sadar", 'Chakaria', 'Kutubdia', 'Maheshkhali', 'Ramu', 'Teknaf', 'Ukhia', 'Pekua'],
-};
-const getUpazilas = (district) => UPAZILAS[district] || ['Sadar', 'Other'];
 
 function useSession() {
   const [state, setState] = useState({ loading: true, session: null });
@@ -111,7 +92,7 @@ export default function CheckoutPage() {
     setBusy(false);
     if (err) { setError(err.message); return; }
     setPlaced({
-      order_no: data.order_no, total: data.total, delivery_fee: data.delivery_fee,
+      order_no: data.order_no, total: data.total, delivery_fee: data.delivery_fee, discount: data.discount || 0,
       lines: quote.lines, name: form.customer_name, phone: form.customer_phone,
       address: [form.address_line, form.upazila, form.district, form.division].join(', '),
     });
@@ -146,6 +127,7 @@ export default function CheckoutPage() {
               <div>{money(l.line_total)}</div>
             </div>
           ))}
+          {placed.discount > 0 && <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}><span>Loyalty discount</span><span>- {money(placed.discount)}</span></div>}
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}><span>Delivery charge</span><span>{money(placed.delivery_fee)}</span></div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginTop: 6 }}><span>Total (Cash on Delivery)</span><span>{money(placed.total)}</span></div>
         </div>
@@ -241,6 +223,7 @@ export default function CheckoutPage() {
           <>
             <hr style={{ border: 'none', borderTop: '1px solid var(--line)', margin: '8px 0' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}><span>Subtotal</span><span>{money(quote.subtotal)}</span></div>
+            {Number(quote.discount) > 0 && <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}><span>Loyalty discount ({quote.discount_percent}%)</span><span>- {money(quote.discount)}</span></div>}
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}><span>Delivery ({form.district})</span><span>{money(quote.delivery_fee)}</span></div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginTop: 6 }}><span>Total</span><span>{money(quote.total)}</span></div>
           </>
@@ -256,4 +239,4 @@ export default function CheckoutPage() {
       </div>
     </div>
   );
-               }
+        }
