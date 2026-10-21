@@ -1,5 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSettings, configured } from './app-core.jsx';
+import { useSettings, configured, supabase } from './app-core.jsx';
+import { loadCartItems, onCartChange } from './app-store.jsx';
+import { POLICY_SLUGS, DEFAULT_PAGES, waLink } from './app-pages.jsx';
+import './theme.css';
 
 function Svg({ children }) {
   return (
@@ -69,6 +72,8 @@ const MENU = [
   ['Settings', '/settings'],
 ];
 
+const SOCIAL = [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['youtube', 'YouTube'], ['tiktok', 'TikTok']];
+
 function Splash({ brand, text, onDone }) {
   useEffect(() => {
     const t = setTimeout(onDone, 3300);
@@ -88,6 +93,47 @@ function Splash({ brand, text, onDone }) {
   );
 }
 
+function Footer({ settings }) {
+  const social = settings.social_links || {};
+  const contact = settings.contact || {};
+  const wa = waLink(social.whatsapp);
+  const links = SOCIAL.filter(([k]) => social[k]);
+  return (
+    <footer className="footer">
+      <div className="footer-in">
+        <div className="tiles">
+          <div className="tile"><strong>Cash on Delivery</strong><span>Pay when it arrives</span></div>
+          <div className="tile"><strong>Delivery across Bangladesh</strong><span>Charge shown before you order</span></div>
+          <div className="tile"><strong>Secure orders</strong><span>Your details stay private</span></div>
+          <div className="tile"><strong>Support</strong><span>We are here to help</span></div>
+        </div>
+        <div className="footer-cols">
+          <div>
+            <h3>Shop</h3>
+            <a href="#/shop">All products</a>
+            <a href="#/delivery">Delivery</a>
+            <a href="#/reseller">Become a reseller</a>
+          </div>
+          <div>
+            <h3>Care</h3>
+            <a href="#/help">Help &amp; Support</a>
+            <a href="#/contact">Contact</a>
+            {POLICY_SLUGS.map((s) => <a key={s} href={'#/policy/' + s}>{DEFAULT_PAGES[s].title}</a>)}
+          </div>
+          <div>
+            <h3>Follow us</h3>
+            {wa && <a href={wa} target="_blank" rel="noreferrer">WhatsApp</a>}
+            {links.map(([k, label]) => <a key={k} href={social[k]} target="_blank" rel="noreferrer">{label}</a>)}
+            {!wa && links.length === 0 && <span className="muted">Coming soon</span>}
+            {contact.phone && <a href={'tel:' + contact.phone}>{contact.phone}</a>}
+          </div>
+        </div>
+        <p className="footer-copy">&copy; {new Date().getFullYear()} {settings.brand_name}. All rights reserved.</p>
+      </div>
+    </footer>
+  );
+}
+
 function isActive(path, to) {
   if (to === '/') return path === '/';
   return path === to || path.startsWith(to + '/');
@@ -96,6 +142,7 @@ function isActive(path, to) {
 export default function Shell({ path, children }) {
   const settings = useSettings();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const [showSplash, setShowSplash] = useState(() => {
     try {
       if (sessionStorage.getItem('velora_welcomed')) return false;
@@ -119,16 +166,36 @@ export default function Shell({ path, children }) {
     setMenuOpen(false);
   }, [path]);
 
+  useEffect(() => {
+    if (!configured) return undefined;
+    let alive = true;
+    const refresh = () => {
+      loadCartItems()
+        .then((items) => { if (alive) setCartCount(items.reduce((s, i) => s + i.qty, 0)); })
+        .catch(() => {});
+    };
+    refresh();
+    const off = onCartChange(refresh);
+    const { data: sub } = supabase.auth.onAuthStateChange(() => { setTimeout(refresh, 0); });
+    return () => {
+      alive = false;
+      off();
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
   const welcome = settings.welcome || {};
-  const splashOn = showSplash && welcome.enabled !== false;
   const isAdmin = path.startsWith('/admin');
+  const splashOn = showSplash && welcome.enabled !== false && !isAdmin;
 
   return (
     <>
       {splashOn && <Splash brand={settings.brand_name} text={welcome.text || 'Welcome'} onDone={finish} />}
 
       <header className="header">
-        <a className="brand" href="#/">{settings.brand_name}</a>
+        <a className="brand" href="#/">
+          {settings.logo_url ? <img className="logo-img" src={settings.logo_url} alt={settings.brand_name} /> : settings.brand_name}
+        </a>
         <button className="icon-btn" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
           {icons.menu}
         </button>
@@ -150,6 +217,7 @@ export default function Shell({ path, children }) {
             <p className="muted">The store is not connected to its database yet. Add VITE_SUPABASE_URL and VITE_SUPABASE_KEY in the hosting settings, then redeploy.</p>
           </div>
         )}
+        {!isAdmin && configured && <Footer settings={settings} />}
       </main>
 
       {!isAdmin && (
@@ -157,6 +225,7 @@ export default function Shell({ path, children }) {
           {NAV.map((n) => (
             <a key={n.to} href={'#' + n.to} className={isActive(path, n.to) ? 'on' : ''} aria-current={isActive(path, n.to) ? 'page' : undefined}>
               {icons[n.icon]}
+              {n.icon === 'cart' && cartCount > 0 && <span className="cart-badge" aria-label={cartCount + ' items in cart'}>{cartCount > 99 ? '99+' : cartCount}</span>}
               <span>{n.label}</span>
             </a>
           ))}
@@ -164,4 +233,4 @@ export default function Shell({ path, children }) {
       )}
     </>
   );
-}
+            }
