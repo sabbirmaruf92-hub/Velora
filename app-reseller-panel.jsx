@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase, money } from './app-core.jsx';
-import { DIVISIONS, DISTRICTS, getUpazilas } from './data-areas.js';
+import { DIVISIONS, DISTRICTS } from './data-areas.js';
+import { AreaPicker } from './app-area-picker.jsx';
 
 const LEDGER = {
   commission: 'Commission', commission_reversal: 'Commission reversed', withdrawal_reserve: 'Withdrawal requested',
@@ -206,11 +207,7 @@ function NewOrder({ onPlaced }) {
             </select>
           </div>
           <div>
-            <label>Upazila / Thana</label>
-            <select value={cust.upazila} onChange={(e) => setCust({ ...cust, upazila: e.target.value })}>
-              <option value="">-- Select --</option>
-              {getUpazilas(cust.district).map((u) => <option key={u}>{u}</option>)}
-            </select>
+            <AreaPicker district={cust.district} value={cust.upazila} onChange={(v) => setCust({ ...cust, upazila: v })} label="Upazila / Thana" />
           </div>
         </div>
         <label>House / Road / Area</label>
@@ -384,4 +381,4 @@ export function ResellerPanel({ userId }) {
       {view === 'wallet' && <Wallet userId={userId} refreshKey={refresh} />}
     </div>
   );
-                  }
+  }
