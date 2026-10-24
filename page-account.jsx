@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase, money, useSettings } from './app-core.jsx';
-import { DIVISIONS, DISTRICTS, getUpazilas } from './data-areas.js';
+import { DIVISIONS, DISTRICTS } from './data-areas.js';
+import { AreaPicker } from './app-area-picker.jsx';
 
 export const route = '/account';
 
@@ -161,11 +162,7 @@ function AddressForm({ initial, userId, onDone }) {
           </select>
         </div>
         <div>
-          <label>Upazila / Thana</label>
-          <select value={f.upazila} onChange={(e) => set('upazila', e.target.value)}>
-            <option value="">-- Select --</option>
-            {getUpazilas(f.district).map((u) => <option key={u}>{u}</option>)}
-          </select>
+          <AreaPicker district={f.district} value={f.upazila} onChange={(v) => set('upazila', v)} label="Upazila / Thana" />
         </div>
       </div>
       <label>House / Road / Area</label>
@@ -290,13 +287,19 @@ function OrderModal({ order, userId, onClose }) {
 function ProfileTab({ profile, userId, onSaved }) {
   const [name, setName] = useState(profile.full_name || '');
   const [email, setEmail] = useState(profile.email || '');
+  const [phone, setPhone] = useState('');
   const [pw, setPw] = useState('');
   const [msg, setMsg] = useState(null);
 
   async function saveProfile() {
     if (!name.trim()) { setMsg({ bad: true, text: 'Please enter your name.' }); return; }
-    const { error } = await supabase.from('profiles').update({ full_name: name.trim(), email: email.trim() || null }).eq('id', userId);
-    setMsg(error ? { bad: true, text: error.message } : { bad: false, text: 'Saved.' });
+    const update = { full_name: name.trim(), email: email.trim() || null };
+    if (!profile.phone && phone.trim()) {
+      if (!PHONE.test(phone.trim())) { setMsg({ bad: true, text: 'Please enter a valid phone number like 01XXXXXXXXX.' }); return; }
+      update.phone = phone.trim();
+    }
+    const { error } = await supabase.from('profiles').update(update).eq('id', userId);
+    setMsg(error ? { bad: true, text: error.code === '23505' ? 'This phone number is already used by another account.' : error.message } : { bad: false, text: 'Saved.' });
     if (!error) onSaved();
   }
   async function changePw() {
@@ -311,8 +314,17 @@ function ProfileTab({ profile, userId, onSaved }) {
       <div className="fsec">
         <label>Full name</label>
         <input value={name} onChange={(e) => setName(e.target.value)} />
-        <label>Phone (this is your login, ask us to change it)</label>
-        <input value={profile.phone || ''} readOnly style={{ background: 'var(--soft-pink)' }} />
+        {profile.phone ? (
+          <>
+            <label>Phone (this is your login, ask us to change it)</label>
+            <input value={profile.phone} readOnly style={{ background: 'var(--soft-pink)' }} />
+          </>
+        ) : (
+          <>
+            <label>Phone number (please add it, we need it for delivery)</label>
+            <input inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01XXXXXXXXX" />
+          </>
+        )}
         <label>Email (optional)</label>
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <button className="btn dark" style={{ marginTop: 10 }} onClick={saveProfile}>Save</button>
@@ -443,4 +455,4 @@ export default function AccountPage() {
   if (loading) return <div className="page center muted">Loading...</div>;
   if (!session) return <AuthForm />;
   return <Account session={session} />;
-  }
+                        }
