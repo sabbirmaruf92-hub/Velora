@@ -1,0 +1,34 @@
+/* Form styling for the shop pages (checkout, account, reseller) */
+.fsec label, .login label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+.fsec label:has(input[type="checkbox"]), .fsec label:has(input[type="radio"]) { display: flex; align-items: center; gap: 8px; color: var(--black); font-size: 14px; }
+.fsec input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]),
+.fsec select, .fsec textarea {
+  width: 100%; padding: 10px 12px; font: inherit; font-size: 16px; color: var(--black);
+  background: var(--white); border: 1px solid var(--dusty-pink); border-radius: 8px;
+}
+.fsec textarea { min-height: 80px; resize: vertical; }
+.fsec input:focus, .fsec select:focus, .fsec textarea:focus { outline: 2px solid var(--black); outline-offset: 1px; }
+
+.area-btn {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 12px; font: inherit; font-size: 16px; text-align: left;
+  background: var(--white); border: 1px solid var(--dusty-pink); border-radius: 8px; color: var(--black); cursor: pointer;
+}
+.sheet-back { position: fixed; inset: 0; z-index: 120; background: rgba(0, 0, 0, .5); display: flex; align-items: flex-end; justify-content: center; }
+.sheet {
+  width: 100%; max-width: 520px; max-height: 80vh; display: flex; flex-direction: column;
+  background: var(--white); border-radius: 18px 18px 0 0; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  animation: rise .25s ease-out both;
+}
+.sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.sheet input[type="search"] {
+  width: 100%; padding: 11px 12px; font: inherit; font-size: 16px; color: var(--black);
+  background: var(--white); border: 1px solid var(--dusty-pink); border-radius: 10px; margin-bottom: 8px;
+}
+.sheet-list { overflow-y: auto; flex: 1; }
+.sheet-item {
+  display: block; width: 100%; text-align: left; padding: 12px 8px; font: inherit; font-size: 16px;
+  color: var(--black); background: none; border: 0; border-bottom: 1px solid var(--line); cursor: pointer;
+}
+.sheet-item:hover, .sheet-item.on { background: var(--soft-pink); }
+.sheet-item.use { font-weight: 600; }
